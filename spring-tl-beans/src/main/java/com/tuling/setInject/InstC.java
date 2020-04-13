@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
  */
 
 
+
 public class InstC {
 
 	public InstC() {

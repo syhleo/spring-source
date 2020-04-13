@@ -19,6 +19,7 @@ public class InstA {
 	}
 
 	public void setInstB(InstB instB) {
+		System.out.println("InstA 的注入方式......");
 		this.instB = instB;
 	}
 

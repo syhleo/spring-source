@@ -19,16 +19,23 @@ public class TulingBeanFactoryPostProcessor implements BeanFactoryPostProcessor 
 		GenericBeanDefinition rootBeanDefinition =
 				(GenericBeanDefinition) beanFactory.getBeanDefinition("instA");
 
-		//rootBeanDefinition.setBeanClass(InstD.class);
+		/*rootBeanDefinition.setBeanClass(InstD.class);*/
 
-		rootBeanDefinition.setAutowireMode(AbstractBeanDefinition.AUTOWIRE_BY_NAME);
+
+		rootBeanDefinition.setAutowireMode(AbstractBeanDefinition.AUTOWIRE_BY_TYPE);
+
+
 		//rootBeanDefinition.setBeanClass(InstD.class);
 		//rootBeanDefinition.setLazyInit(true);
 
+
 		GenericBeanDefinition genericBeanDefinition =
 				(GenericBeanDefinition) beanFactory.getBeanDefinition("person");
+
 		ConstructorArgumentValues constructorArgumentValues = new ConstructorArgumentValues();
-		constructorArgumentValues.addIndexedArgumentValue(0,"smlz");
+
+		constructorArgumentValues.addIndexedArgumentValue(0,"adc");
+
 		genericBeanDefinition.setConstructorArgumentValues(constructorArgumentValues);
 	}
 }

@@ -18,9 +18,5 @@ import org.springframework.context.annotation.Import;
 @Configuration
 public class MainConfig {
 
-/*	@Bean
-	public InstB instB2() {
-		return new InstB();
-	}*/
 
 }

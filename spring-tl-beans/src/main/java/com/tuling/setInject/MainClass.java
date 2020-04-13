@@ -1,6 +1,7 @@
 package com.tuling.setInject;
 
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.annotation.ClassPathBeanDefinitionScanner;
 
 /**
  * Created by smlz on 2019/8/22.
@@ -8,13 +9,16 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 public class MainClass {
 
 	public static void main(String[] args) {
+
 		AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(MainConfig.class);
-		//System.out.println(ctx.getBean(InstA.class));
-		//InstD instD = ctx.getBean(InstD.class);
+
+
+		ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(ctx);
+
+
 		InstA instA = (InstA) ctx.getBean("instA");
-		//InstD instD = ctx.getBean(InstD.class);
+
 		System.out.println(instA);
-		//ctx.getBean(InstD.class);
 
 	}
 }

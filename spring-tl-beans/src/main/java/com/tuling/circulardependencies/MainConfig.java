@@ -7,7 +7,6 @@ import org.springframework.context.annotation.*;
  */
 @Configuration
 @ComponentScan(basePackages = {"com.tuling.circulardependencies"})
-@ImportResource(value = {"classpath:beans/beans.xml"})
 public class MainConfig {
 
 
