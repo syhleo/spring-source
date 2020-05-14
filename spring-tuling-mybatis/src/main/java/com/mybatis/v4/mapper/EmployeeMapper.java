@@ -1,11 +1,9 @@
-package com.tuling.mapper;
+package com.mybatis.v4.mapper;
 
-import com.tuling.entity.Employee;
+import com.mybatis.v4.entity.Employee;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Select;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.context.annotation.Scope;
 
 import java.util.List;
 

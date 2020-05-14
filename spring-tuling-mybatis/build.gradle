@@ -29,7 +29,6 @@ dependencies {
     compile("net.sf.ehcache:ehcache-core:2.6.11")
 
 
-
 }
 
 task "create-dirs" << {

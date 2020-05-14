@@ -3,20 +3,21 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.tuling.mapper.DeptMapper">
+<mapper namespace="com.mybatis.v4.mapper.DeptMapper">
 
-	<!--开启二级缓存-->
+	<!--开启二级缓存
 	<cache type="org.mybatis.caches.ehcache.EhcacheCache"></cache>
+	-->
 
     <select id="findOne" parameterType="Integer" resultType="Dept">
         select * from dept where id = #{id}
     </select>
 
-    <select id="list" resultType="com.tuling.entity.Dept">
+    <select id="list" resultType="com.mybatis.v4.entity.Dept">
         select * from dept
     </select>
 
-	<select id="findDepts" resultType="com.tuling.entity.Dept" parameterType="list">
+	<select id="findDepts" resultType="com.mybatis.v4.entity.Dept" parameterType="list">
 		select * from dept
 		<where>
 			id IN
@@ -26,7 +27,7 @@
 		</where>
 	</select>
 
-	<select id="findDeptByIdAndName" resultType="com.tuling.entity.Dept" parameterType="map">
+	<select id="findDeptByIdAndName" resultType="com.mybatis.v4.entity.Dept" parameterType="map">
 		select * from dept
 		<where>
 			<if test="id!=null and id!=''">

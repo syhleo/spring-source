@@ -1,4 +1,4 @@
-package com.tuling.entity;
+package com.mybatis.v4.entity;
 
 import lombok.Data;
 import lombok.ToString;

@@ -1,9 +1,8 @@
-package com.tuling.mapper;
+package com.mybatis.v4.mapper;
 
 
-import com.tuling.entity.Dept;
+import com.mybatis.v4.entity.Dept;
 import org.apache.ibatis.annotations.Param;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 

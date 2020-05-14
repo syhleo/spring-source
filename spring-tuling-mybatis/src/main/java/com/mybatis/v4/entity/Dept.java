@@ -1,4 +1,4 @@
-package com.tuling.entity;
+package com.mybatis.v4.entity;
 
 import java.io.Serializable;
 
@@ -9,7 +9,15 @@ public class Dept implements Serializable{
 
     private Integer id;
 
-    private String departmentName;
+	@Override
+	public String toString() {
+		return "Dept{" +
+				"id=" + id +
+				", departmentName='" + departmentName + '\'' +
+				'}';
+	}
+
+	private String departmentName;
 
     public Integer getId() {
         return id;
@@ -26,4 +34,6 @@ public class Dept implements Serializable{
     public void setDepartmentName(String departmentName) {
         this.departmentName = departmentName;
     }
+
+
 }
