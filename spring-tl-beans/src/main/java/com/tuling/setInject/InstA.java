@@ -1,8 +1,6 @@
 package com.tuling.setInject;
 
 
-import com.sun.org.apache.xpath.internal.SourceTree;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**

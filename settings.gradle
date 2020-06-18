@@ -38,4 +38,5 @@ include 'spring-tuling-boot'
 include 'spring-tuling-jdbc'
 include 'spring-tuling-mybatis'
 include 'spring-tuling-autoconfiguration'
+include 'spring-tuling-quickstart'
 

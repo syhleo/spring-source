@@ -16,8 +16,6 @@
 
 package org.springframework.context.annotation;
 
-import java.util.function.Supplier;
-
 import org.springframework.beans.factory.config.BeanDefinitionCustomizer;
 import org.springframework.beans.factory.support.BeanNameGenerator;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
@@ -25,6 +23,8 @@ import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
+
+import java.util.function.Supplier;
 
 /**
  * Standalone application context, accepting annotated classes as input - in particular
@@ -68,14 +68,30 @@ public class AnnotationConfigApplicationContext extends GenericApplicationContex
 	 * through {@link #register} calls and then manually {@linkplain #refresh refreshed}.
 	 */
 	public AnnotationConfigApplicationContext() {
+		//调用无参的构造器，会调用父类的无参构造器（子类调用自己构造方法之前要调用父类的构造方法）
 		/**
 		 * 初始化注解模式下的bean定义扫描器
 		 * 调用AnnotatedBeanDefinitionReader构造方法，传入的是this(AnnotationConfigApplicationContext)对象
+		 * 完成了spring内部BeanDefinition的注册（主要是后置处理器）
+	     *
 		 */
-
 		this.reader = new AnnotatedBeanDefinitionReader(this);
+
 		/**
 		 * 初始化我们的classPath类型的bean定义扫描器
+		 * 创建BeanDefinition扫描器
+		 * 可以用来扫描包或者类，继而转换为bd
+		 * ClassPathBeanDefinitionScanner就是用来扫描我们classpath下的标注了@Service @Compent @Respository @Controller注解
+		 *
+		 *
+		 * * spring默认的扫描器其实不是这个scanner对象
+		 * * 而是在后面自己又重新new了一个ClassPathBeanDefinitionScanner
+		 * * spring在执行工程后置处理器ConfigurationClassPostProcessor时，去扫描包时会new一个ClassPathBeanDefinitionScanner
+		 * *
+		 * * 这里的scanner仅仅是为了程序员可以手动调用AnnotationConfigApplicationContext对象的scan方法
+		 * ————————————————
+		 * 原文链接：https://blog.csdn.net/yu_kang/article/details/88068619
+		 *
 		 */
 		this.scanner = new ClassPathBeanDefinitionScanner(this);
 	}
@@ -171,6 +187,7 @@ public class AnnotationConfigApplicationContext extends GenericApplicationContex
 	 */
 	public void register(Class<?>... annotatedClasses) {
 		Assert.notEmpty(annotatedClasses, "At least one annotated class must be specified");
+		//this.reader就是默认构造函数初始化的AnnotatedBeanDefinitionReader
 		this.reader.register(annotatedClasses);
 	}
 
@@ -184,6 +201,7 @@ public class AnnotationConfigApplicationContext extends GenericApplicationContex
 	 */
 	public void scan(String... basePackages) {
 		Assert.notEmpty(basePackages, "At least one base package must be specified");
+		// 这个scanner就是默认构造函数初始化的ClassPathBeanDefinitionScanner
 		this.scanner.scan(basePackages);
 	}
 

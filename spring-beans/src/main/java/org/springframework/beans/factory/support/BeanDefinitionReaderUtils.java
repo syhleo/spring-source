@@ -136,6 +136,9 @@ public class BeanDefinitionReaderUtils {
 	}
 
 	/**
+	 * 这里的registry是this.scanner = new ClassPathBeanDefinitionScanner(this);
+	 * 中的this也就是AnnotationConfigApplicationContext
+	 *
 	 * Register the given bean definition with the given bean factory.
 	 * @param definitionHolder the bean definition including name and aliases
 	 * @param registry the bean factory to register with
@@ -147,6 +150,18 @@ public class BeanDefinitionReaderUtils {
 
 		// Register bean definition under primary name.
 		String beanName = definitionHolder.getBeanName();
+
+		/**
+		 * 这里的registerBeanDefinition是由父类GenericApplicationContext实现的
+		 *
+		 * 跟踪源码可知，是在父类中调用this.beanFactory.registerBeanDefinition(beanName, beanDefinition)
+		 * 而这个beanFactory是AnnotationConfigApplicationContext在执行自己的构造方法this()时
+		 * 先去执行了父类GenericApplicationContext的构造方法，完成了this.beanFactory = new DefaultListableBeanFactory()
+		 *
+		 * 所以，最终将beanDefinition注册到了DefaultListableBeanFactory中
+		 *   ————————————————
+		 * 	原文链接：https://blog.csdn.net/yu_kang/article/details/88075447
+		 * */
 		registry.registerBeanDefinition(beanName, definitionHolder.getBeanDefinition());
 
 		// Register aliases for bean name, if any.

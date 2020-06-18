@@ -16,9 +16,6 @@
 
 package org.springframework.context.annotation;
 
-import java.lang.annotation.Annotation;
-import java.util.function.Supplier;
-
 import org.springframework.beans.factory.annotation.AnnotatedGenericBeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinitionCustomizer;
@@ -32,6 +29,9 @@ import org.springframework.core.env.EnvironmentCapable;
 import org.springframework.core.env.StandardEnvironment;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
+
+import java.lang.annotation.Annotation;
+import java.util.function.Supplier;
 
 /**
  * Convenient adapter for programmatic registration of annotated bean classes.
@@ -86,7 +86,14 @@ public class AnnotatedBeanDefinitionReader {
 		this.registry = registry;
 		//用户处理条件表达式计算 @Conditionl主机呃呃
 		this.conditionEvaluator = new ConditionEvaluator(registry, environment, null);
-		//注册一些配置的后置处理器
+		/*
+		 注册一些配置的后置处理器
+		 即根据名字顾名思义就是->注册注解配置的的处理器
+		 也就是这个方法里面会注册一些用于处理注解的处理器
+		 比如（注册了 解析我们配置类的后置处理器、注册了处理@Autowired 注解的处理器、
+		 注册处理@Required属性的注解处理器、处理监听方法的注解解析器、注册处理JSR规范的注解处理器
+		 处理jpa注解的处理器、注册事件监听器工厂等等）
+		 */
 		AnnotationConfigUtils.registerAnnotationConfigProcessors(this.registry);
 	}
 

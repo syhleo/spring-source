@@ -16,17 +16,8 @@
 
 package org.springframework.context.annotation;
 
-import java.io.IOException;
-import java.lang.annotation.Annotation;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
 import org.springframework.beans.factory.annotation.AnnotatedGenericBeanDefinition;
@@ -53,13 +44,13 @@ import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.core.type.filter.AssignableTypeFilter;
 import org.springframework.core.type.filter.TypeFilter;
 import org.springframework.lang.Nullable;
-import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Controller;
-import org.springframework.stereotype.Indexed;
-import org.springframework.stereotype.Repository;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.*;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
+
+import java.io.IOException;
+import java.lang.annotation.Annotation;
+import java.util.*;
 
 /**
  * A component provider that provides candidate components from a base package. Can
@@ -193,6 +184,9 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
 	}
 
 	/**
+	 *  注册过滤器
+	 *  带有@Component、@Repository、@Service、@Controller、@ManagedBean、@Named
+	 *  注解的类会被spring扫描到
 	 * 这也是为啥我们标注了@Compent @Repository @Service @Controller 能够被识别解析
 	 * <p>Also supports Java EE 6's {@link javax.annotation.ManagedBean} and
 	 * JSR-330's {@link javax.inject.Named} annotations, if available.
@@ -200,11 +194,19 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
 	 */
 	@SuppressWarnings("unchecked")
 	protected void registerDefaultFilters() {
+		/*
+		这里提前往includeFilters里面添加需要扫描的特定注解
+		1.添加元注解@Component，需要注意的是@Repository、@Service、@Controller里面都标注了@Component。很好理解，扫描的时候用includeFilters 去过滤时，会找到并处理这4个注解的类。
+		2.下面两个注解@ManagedBean、@Named需要有对应的jar包，否则（也就是说把这个方法走完），includeFilters里面只会有一个元素
+		————————————————
+		原文链接：https://blog.csdn.net/yu_kang/article/details/88075447
+		*/
+
 		//加入扫描我们的@Component的
 		this.includeFilters.add(new AnnotationTypeFilter(Component.class));
 		ClassLoader cl = ClassPathScanningCandidateComponentProvider.class.getClassLoader();
 		try {
-			//加入扫描我们的JSR250规范的
+			//加入扫描我们的JSR250规范的@ManagedBean
 			this.includeFilters.add(new AnnotationTypeFilter(
 					((Class<? extends Annotation>) ClassUtils.forName("javax.annotation.ManagedBean", cl)), false));
 			logger.debug("JSR-250 'javax.annotation.ManagedBean' found and supported for component scanning");
@@ -213,7 +215,7 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
 			// JSR-250 1.1 API (as included in Java EE 6) not available - simply skip.
 		}
 		try {
-			//加入扫描我们JSR330规范的
+			//加入扫描我们JSR330规范的@Named
 			this.includeFilters.add(new AnnotationTypeFilter(
 					((Class<? extends Annotation>) ClassUtils.forName("javax.inject.Named", cl)), false));
 			logger.debug("JSR-330 'javax.inject.Named' annotation found and supported for component scanning");
@@ -303,6 +305,8 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
 
 
 	/**
+	 * 根据方法名顾名思义，找到候选组件，在指定的包中找到候选组件
+	 *
 	 * Scan the class path for candidate components.
 	 * @param basePackage the package to check for annotated classes
 	 * @return a corresponding Set of autodetected bean definitions
@@ -415,10 +419,17 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
 	private Set<BeanDefinition> scanCandidateComponents(String basePackage) {
 		Set<BeanDefinition> candidates = new LinkedHashSet<>();
 		try {
+			/**
+			 * 扫描classpath*:下的.class文件
+			 * 将class文件转换为resources
+			 *
+			 * 循环resource，转换为ScannedGenericBeanDefinition
+			 *
+			 */
 			//把我们的包路径转为资源路径
 			String packageSearchPath = ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX +
 					resolveBasePackage(basePackage) + '/' + this.resourcePattern;
-			//把资源路径变成我们需要解析的路径下的所有class路径
+			//把资源路径变成我们需要解析的路径下的所有class路径   asm读取class文件
 			Resource[] resources = getResourcePatternResolver().getResources(packageSearchPath);
 			boolean traceEnabled = logger.isTraceEnabled();
 			boolean debugEnabled = logger.isDebugEnabled();
@@ -427,22 +438,31 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
 				if (traceEnabled) {
 					logger.trace("Scanning " + resource);
 				}
-				//判断当的是不是课读的
+				//判断当的是不是可读的
 				if (resource.isReadable()) {
 					try {
+						//获取.class对应的元信息，例如注解信息等
 						MetadataReader metadataReader = getMetadataReaderFactory().getMetadataReader(resource);
 						//是不是候选的组件
+						/**
+						 * 判断excludeFilters与includeFilters
+						 * includeFilters在new ClassPathBeanDefinitionScanner时就默认添加了@Component等元注解
+						 * 根据注解元信息判断是不是符合条件的.class
+						 *
+						 * 就是判断当前class文件符不符合扫描过滤器includeFilters与excludeFilters中的定义，最后返回一个符合条件的Set<BeanDefinition>。
+						 */
 						if (isCandidateComponent(metadataReader)) {
 							//包装成为一个ScannedGenericBeanDefinition
 							ScannedGenericBeanDefinition sbd = new ScannedGenericBeanDefinition(metadataReader);
 							//并且设置class资源
 							sbd.setResource(resource);
 							sbd.setSource(resource);
+							//判断能否实例化
 							if (isCandidateComponent(sbd)) {
 								if (debugEnabled) {
 									logger.debug("Identified candidate component class: " + resource);
 								}
-								//加入到集合中
+								//加入到集合中  即添加到候选BeanDefinition
 								candidates.add(sbd);
 							}
 							else {

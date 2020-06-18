@@ -16,37 +16,13 @@
 
 package org.springframework.beans.factory.annotation;
 
-import java.beans.PropertyDescriptor;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.AccessibleObject;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.PropertyValues;
 import org.springframework.beans.TypeConverter;
-import org.springframework.beans.factory.BeanCreationException;
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.BeanFactoryAware;
-import org.springframework.beans.factory.BeanFactoryUtils;
-import org.springframework.beans.factory.InjectionPoint;
-import org.springframework.beans.factory.NoSuchBeanDefinitionException;
-import org.springframework.beans.factory.UnsatisfiedDependencyException;
+import org.springframework.beans.factory.*;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.config.DependencyDescriptor;
 import org.springframework.beans.factory.config.InstantiationAwareBeanPostProcessorAdapter;
@@ -64,6 +40,12 @@ import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
+
+import java.beans.PropertyDescriptor;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.*;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * {@link org.springframework.beans.factory.config.BeanPostProcessor} implementation
@@ -133,7 +115,7 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 
 	private final Set<String> lookupMethodsChecked = Collections.newSetFromMap(new ConcurrentHashMap<>(256));
 	/**
-	 * ç”¨äºç¼“å­˜ classå¯¹è±¡å·²ç»å€™é€‰çš„æ„é€ å™¨
+	 * ÓÃÓÚ»º´æ class¶ÔÏóÒÑ¾­ºòÑ¡µÄ¹¹ÔìÆ÷
 	 */
 	private final Map<Class<?>, Constructor<?>[]> candidateConstructorsCache = new ConcurrentHashMap<>(256);
 
@@ -243,23 +225,23 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 			try {
 				ReflectionUtils.doWithMethods(beanClass, method -> {
 					/**
-					 * åˆ¤æ–­å½“å‰çš„æ–¹æ³•ä¸Šæ˜¯å¦é…ç½®äº†@Lookupæ³¨è§£(ç”¨æ³•)
-					 * æ¯”å¦‚æˆ‘ä»¬å•å®ä¾‹å¯¹InstAå¯¹è±¡ä¸­æœ‰ä¸€ä¸ªå¤šå®ä¾‹çš„å¯¹è±¡InstB ,æˆ‘ä»¬åœ¨å®ä¾‹InstAä¸­æ³¨å…¥äº†InstBå¯¹è±¡
-					 * ä½†æ˜¯æˆ‘ä»¬åœ¨InstAå¯¹è±¡ä¸­æ–¹æ³•ä½¿ç”¨åˆ°instBå¯¹è±¡çš„æ—¶å€™å‘ç°instBå¯¹è±¡å±…ç„¶æ˜¯å•ä¾‹çš„,å’Œæˆ‘ä»¬çš„æƒ³æ³•å®Œå…¨ä¸åŒï¼Œå› ä¸ºæˆ‘ä»¬åœ¨åˆ›å»ºinstAçš„æ—¶å€™
-					 * instBå·²ç»ç»‘åˆ°instAä¸Š,ä¸ç®¡ä»¥åæˆ‘ä»¬æ€ä¹ˆä½¿ç”¨åˆ°instAä¸­çš„å¯¹è±¡instBéƒ½æ˜¯å•ä¾‹çš„.
-					 * è§£å†³æ–¹æ¡ˆ1:è¦ä¹ˆåœ¨instAä¸Šå®ç° beanFacotyAwareæ¥å£,æ¯æ¬¡è¦ä½ ä½¿ç”¨instBçš„æ—¶å€™ï¼Œéƒ½å»å®¹å™¨ä¸­è·å–
-					 * è§£å†³æ–¹æ¡ˆ2:åœ¨æŸä¸ªæ–¹æ³•ä¸Šæ ‡æ³¨äº†@LookUpæ–¹æ³•,æ ‡æ³¨äº†æ–¹æ³• ,å°±ä¼šå»å®¹å™¨ä¸­è·å–æ‰€ä»¥æ¯æ¬¡éƒ½æ˜¯å¤šå®çš„
-					 * æŠ€æœ¯blogï¼šhttps://www.jianshu.com/p/fc574881e3a2
+					 * ÅĞ¶Ïµ±Ç°µÄ·½·¨ÉÏÊÇ·ñÅäÖÃÁË@Lookup×¢½â(ÓÃ·¨)
+					 * ±ÈÈçÎÒÃÇµ¥ÊµÀı¶ÔInstA¶ÔÏóÖĞÓĞÒ»¸ö¶àÊµÀıµÄ¶ÔÏóInstB ,ÎÒÃÇÔÚÊµÀıInstAÖĞ×¢ÈëÁËInstB¶ÔÏó
+					 * µ«ÊÇÎÒÃÇÔÚInstA¶ÔÏóÖĞ·½·¨Ê¹ÓÃµ½instB¶ÔÏóµÄÊ±ºò·¢ÏÖinstB¶ÔÏó¾ÓÈ»ÊÇµ¥ÀıµÄ,ºÍÎÒÃÇµÄÏë·¨ÍêÈ«²»Í¬£¬ÒòÎªÎÒÃÇÔÚ´´½¨instAµÄÊ±ºò
+					 * instBÒÑ¾­°óµ½instAÉÏ,²»¹ÜÒÔºóÎÒÃÇÔõÃ´Ê¹ÓÃµ½instAÖĞµÄ¶ÔÏóinstB¶¼ÊÇµ¥ÀıµÄ.
+					 * ½â¾ö·½°¸1:ÒªÃ´ÔÚinstAÉÏÊµÏÖ beanFacotyAware½Ó¿Ú,Ã¿´ÎÒªÄãÊ¹ÓÃinstBµÄÊ±ºò£¬¶¼È¥ÈİÆ÷ÖĞ»ñÈ¡
+					 * ½â¾ö·½°¸2:ÔÚÄ³¸ö·½·¨ÉÏ±ê×¢ÁË@LookUp·½·¨,±ê×¢ÁË·½·¨ ,¾Í»áÈ¥ÈİÆ÷ÖĞ»ñÈ¡ËùÒÔÃ¿´Î¶¼ÊÇ¶àÊµµÄ
+					 * ¼¼Êõblog£ºhttps://www.jianshu.com/p/fc574881e3a2
 					 */
 					Lookup lookup = method.getAnnotation(Lookup.class);
 					if (lookup != null) {
 						Assert.state(this.beanFactory != null, "No BeanFactory available");
-						//æŠŠæ ‡æ³¨äº†@Lookupçš„æ–¹æ³•åç§°å’Œlookupæ³¨è§£çš„value è¿›è¡Œå°è£…ä¸ºLookupOverride
+						//°Ñ±ê×¢ÁË@LookupµÄ·½·¨Ãû³ÆºÍlookup×¢½âµÄvalue ½øĞĞ·â×°ÎªLookupOverride
 						LookupOverride override = new LookupOverride(method, lookup.value());
 						try {
-							//è·å–å½“å‰çš„beanå®šä¹‰ä¿¡æ¯
+							//»ñÈ¡µ±Ç°µÄbean¶¨ÒåĞÅÏ¢
 							RootBeanDefinition mbd = (RootBeanDefinition) this.beanFactory.getMergedBeanDefinition(beanName);
-							//æŠŠlookupä¿¡æ¯ä¿å­˜åˆ°å½“å‰çš„beanå®šä¹‰çš„MethodOverridesé›†åˆä¸­
+							//°ÑlookupĞÅÏ¢±£´æµ½µ±Ç°µÄbean¶¨ÒåµÄMethodOverrides¼¯ºÏÖĞ
 							mbd.getMethodOverrides().addOverride(override);
 						}
 						catch (NoSuchBeanDefinitionException ex) {
@@ -272,22 +254,22 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 			catch (IllegalStateException ex) {
 				throw new BeanCreationException(beanName, "Lookup method resolution failed", ex);
 			}
-			//æ ‡æ³¨å½“å‰çš„beanNameéœ€è¦åšlookupMethodsCheckedæ£€æŸ¥
+			//±ê×¢µ±Ç°µÄbeanNameĞèÒª×ölookupMethodsChecked¼ì²é
 			this.lookupMethodsChecked.add(beanName);
 		}
 
-		//æ ¹æ®classå¯¹è±¡å»candidateConstructorsCacheç¼“å­˜ä¸­è·å–åˆ°å¯¹åº”çš„å€™é€‰æ„é€ å™¨å¯¹è±¡
+		//¸ù¾İclass¶ÔÏóÈ¥candidateConstructorsCache»º´æÖĞ»ñÈ¡µ½¶ÔÓ¦µÄºòÑ¡¹¹ÔìÆ÷¶ÔÏó
 		Constructor<?>[] candidateConstructors = this.candidateConstructorsCache.get(beanClass);
-		//è‹¥ç¼“å­˜ä¸­æ²¡æœ‰è·å–åˆ°
+		//Èô»º´æÖĞÃ»ÓĞ»ñÈ¡µ½
 		if (candidateConstructors == null) {
-			//åŠ é”
+			//¼ÓËø
 			synchronized (this.candidateConstructorsCache) {
-				//dclæ£€æŸ¥........
+				//dcl¼ì²é........
 				candidateConstructors = this.candidateConstructorsCache.get(beanClass);
 				if (candidateConstructors == null) {
 					Constructor<?>[] rawCandidates;
 					try {
-						//æ ¹æ®beançš„classå¯¹è±¡è·å–å‡ºå€™é€‰çš„æ„é€ å‡½æ•°æ•°ç»„
+						//¸ù¾İbeanµÄclass¶ÔÏó»ñÈ¡³öºòÑ¡µÄ¹¹Ôìº¯ÊıÊı×é
 						rawCandidates = beanClass.getDeclaredConstructors();
 					}
 					catch (Throwable ex) {
@@ -298,10 +280,10 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 					List<Constructor<?>> candidates = new ArrayList<>(rawCandidates.length);
 					Constructor<?> requiredConstructor = null;
 					Constructor<?> defaultConstructor = null;
-					//æ‰¾åˆ°é¦–é€‰çš„æ„é€ å‡½æ•°,åœ¨è¿™é‡Œä¸åšè¯¦ç»†çš„è§£é‡Š
+					//ÕÒµ½Ê×Ñ¡µÄ¹¹Ôìº¯Êı,ÔÚÕâÀï²»×öÏêÏ¸µÄ½âÊÍ
 					Constructor<?> primaryConstructor = BeanUtils.findPrimaryConstructor(beanClass);
 					int nonSyntheticConstructors = 0;
-					//å¾ªç¯æ„é€ å‡½æ•°é€‰ä¸¾å‡ºä¸€ä¸ªåˆé€‚çš„æ„é€ å‡½æ•°
+					//Ñ­»·¹¹Ôìº¯ÊıÑ¡¾Ù³öÒ»¸öºÏÊÊµÄ¹¹Ôìº¯Êı
 					for (Constructor<?> candidate : rawCandidates) {
 						if (!candidate.isSynthetic()) {
 							nonSyntheticConstructors++;
@@ -309,18 +291,18 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 						else if (primaryConstructor != null) {
 							continue;
 						}
-						//åˆ¤æ–­æ„é€ å‡½æ•°ä¸Š æœ‰æ²¡æœ‰æ ‡æ³¨äº†@AutoWiredæ³¨è§£
+						//ÅĞ¶Ï¹¹Ôìº¯ÊıÉÏ ÓĞÃ»ÓĞ±ê×¢ÁË@AutoWired×¢½â
 						AnnotationAttributes ann = findAutowiredAnnotation(candidate);
-						//æ²¡æœ‰æ ‡æ³¨
+						//Ã»ÓĞ±ê×¢
 						if (ann == null) {
-							//è¿”å›ä¸æ˜¯é€šè¿‡cglibå¢å¼ºçš„class
+							//·µ»Ø²»ÊÇÍ¨¹ıcglibÔöÇ¿µÄclass
 							Class<?> userClass = ClassUtils.getUserClass(beanClass);
 							if (userClass != beanClass) {
 								try {
-									//è·å–å‡ºå¯¹åº”çš„æ„é€ å™¨å¯¹è±¡æ•°ç»„
+									//»ñÈ¡³ö¶ÔÓ¦µÄ¹¹ÔìÆ÷¶ÔÏóÊı×é
 									Constructor<?> superCtor =
 											userClass.getDeclaredConstructor(candidate.getParameterTypes());
-									//æ‰¾æœ‰æ²¡æœ‰æ ‡æ³¨äº†@AutoWiredæ³¨è§£çš„
+									//ÕÒÓĞÃ»ÓĞ±ê×¢ÁË@AutoWired×¢½âµÄ
 									ann = findAutowiredAnnotation(superCtor);
 								}
 								catch (NoSuchMethodException ex) {
@@ -328,7 +310,7 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 								}
 							}
 						}
-						//è§£æå‡º@AutoWiredæ³¨è§£
+						//½âÎö³ö@AutoWired×¢½â
 						if (ann != null) {
 							if (requiredConstructor != null) {
 								throw new BeanCreationException(beanName,
@@ -336,9 +318,9 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 										". Found constructor with 'required' Autowired annotation already: " +
 										requiredConstructor);
 							}
-							//è§£æå‡º@AutoWiredçš„requiredå±æ€§
+							//½âÎö³ö@AutoWiredµÄrequiredÊôĞÔ
 							boolean required = determineRequiredStatus(ann);
-							//ä¸ºtureçš„è¯
+							//ÎªtureµÄ»°
 							if (required) {
 								if (!candidates.isEmpty()) {
 									throw new BeanCreationException(beanName,
@@ -351,11 +333,11 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 							candidates.add(candidate);
 						}
 						else if (candidate.getParameterCount() == 0) {
-							//ä½¿ç”¨æ— å‚æ•°æ„é€ å™¨
+							//Ê¹ÓÃÎŞ²ÎÊı¹¹ÔìÆ÷
 							defaultConstructor = candidate;
 						}
 					}
-					//é€‰å‡ºå¯¹åº”çš„æ„é€ å‡½æ•°
+					//Ñ¡³ö¶ÔÓ¦µÄ¹¹Ôìº¯Êı
 					if (!candidates.isEmpty()) {
 						// Add default constructor to list of optional constructors, as fallback.
 						if (requiredConstructor == null) {
@@ -384,7 +366,7 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 					else {
 						candidateConstructors = new Constructor<?>[0];
 					}
-					//åŠ å…¥åˆ°ç¼“å­˜ä¸­
+					//¼ÓÈëµ½»º´æÖĞ
 					this.candidateConstructorsCache.put(beanClass, candidateConstructors);
 				}
 			}
