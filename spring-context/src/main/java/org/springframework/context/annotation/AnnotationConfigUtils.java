@@ -171,12 +171,12 @@ public class AnnotationConfigUtils {
 		 */
         // TODO 执行下面7个默认的spring内部bean的注册
 		/**
-		 * 为我们容器中注册了解析我们配置类的后置处理器ConfigurationClassPostProcessor
+		 * 为我们容器中注册了解析我们“配置类”的后置处理器ConfigurationClassPostProcessor
 		 * 名字叫:org.springframework.context.annotation.internalConfigurationAnnotationProcessor
 		 * ConfigurationClassPostProcessor是一个‘工厂’后置处理器，这个后置处理器非常重要，
 		 * 基本上‘类’上面的注解都在这里面判断并解析，spring的包扫描也在里面完成
 		 */
-		// 注册ConfigurationClassPostProcessor
+		// 注册ConfigurationClassPostProcessor  即 注册一个配置类解析器的bean定义
 		if (!registry.containsBeanDefinition(CONFIGURATION_ANNOTATION_PROCESSOR_BEAN_NAME)) {
 			RootBeanDefinition def = new RootBeanDefinition(ConfigurationClassPostProcessor.class);
 			def.setSource(source);
@@ -188,7 +188,7 @@ public class AnnotationConfigUtils {
 		 * 名字叫:org.springframework.context.annotation.internalAutowiredAnnotationProcessor
 		 * 顾名思义就是处理@Autowired的，它是一个bean的后置处理器，在bean的属性注入的时候会用到
 		 */
-		// 注册AutowiredAnnotationBeanPostProcessor
+		// 注册AutowiredAnnotationBeanPostProcessor 即设置AutoWired注解解析器的bean定义信息
 		if (!registry.containsBeanDefinition(AUTOWIRED_ANNOTATION_PROCESSOR_BEAN_NAME)) {
 			RootBeanDefinition def = new RootBeanDefinition(AutowiredAnnotationBeanPostProcessor.class);
 			def.setSource(source);
@@ -200,7 +200,7 @@ public class AnnotationConfigUtils {
 		 * 名字叫:org.springframework.context.annotation.internalRequiredAnnotationProcessor
 		 * 顾名思义就是处理@Required的，它是一个bean的后置处理器，在bean的属性注入的时候会用到
 		 */
-		// 注册RequiredAnnotationBeanPostProcessor
+		// 注册RequiredAnnotationBeanPostProcessor  即注册解析@Required 注解的处理器
 		if (!registry.containsBeanDefinition(REQUIRED_ANNOTATION_PROCESSOR_BEAN_NAME)) {
 			RootBeanDefinition def = new RootBeanDefinition(RequiredAnnotationBeanPostProcessor.class);
 			def.setSource(source);
@@ -222,6 +222,7 @@ public class AnnotationConfigUtils {
 
 		/**
 		 * 处理jpa注解的处理器org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor
+		 * 检查是否支持jpa，若支持注册解析jpa规范的注解
 		 */
 		//注册PersistenceAnnotationBeanPostProcessor
 		if (jpaPresent && !registry.containsBeanDefinition(PERSISTENCE_ANNOTATION_PROCESSOR_BEAN_NAME)) {
@@ -242,7 +243,7 @@ public class AnnotationConfigUtils {
 		 * 处理监听方法的注解解析器EventListenerMethodProcessor
 		 * 这是对@EventListener注解的处理，spring实现事件监听的方式有很多种，其中一种就是在方法上添加@EventListener注解
 		 */
-		// 注册EventListenerMethodProcessor
+		// 注册EventListenerMethodProcessor  即注册解析@EventListener的注解
 		if (!registry.containsBeanDefinition(EVENT_LISTENER_PROCESSOR_BEAN_NAME)) {
 			RootBeanDefinition def = new RootBeanDefinition(EventListenerMethodProcessor.class);
 			def.setSource(source);

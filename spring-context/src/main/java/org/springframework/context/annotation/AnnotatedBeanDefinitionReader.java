@@ -84,10 +84,10 @@ public class AnnotatedBeanDefinitionReader {
 		Assert.notNull(environment, "Environment must not be null");
 		//把ApplicationContext对象赋值给AnnotatedBeanDefinitionReader
 		this.registry = registry;
-		//用户处理条件表达式计算 @Conditionl主机呃呃
+		//用户处理条件表达式计算 @Conditional主机呃呃
 		this.conditionEvaluator = new ConditionEvaluator(registry, environment, null);
 		/*
-		 注册一些配置的后置处理器
+		 注册一些配置的后置处理器      为容器中注册系统的bean定义信息
 		 即根据名字顾名思义就是->注册注解配置的的处理器
 		 也就是这个方法里面会注册一些用于处理注解的处理器
 		 比如（注册了 解析我们配置类的后置处理器、注册了处理@Autowired 注解的处理器、
@@ -222,7 +222,7 @@ public class AnnotatedBeanDefinitionReader {
 	 */
 	<T> void doRegisterBean(Class<T> annotatedClass, @Nullable Supplier<T> instanceSupplier, @Nullable String name,
 			@Nullable Class<? extends Annotation>[] qualifiers, BeanDefinitionCustomizer... definitionCustomizers) {
-
+		//把传入的主配置类封装成一个AnnotatedGenericBeanDefinition（继承BeanDefinition）
 		AnnotatedGenericBeanDefinition abd = new AnnotatedGenericBeanDefinition(annotatedClass);
 		if (this.conditionEvaluator.shouldSkip(abd.getMetadata())) {
 			return;
@@ -251,6 +251,7 @@ public class AnnotatedBeanDefinitionReader {
 			customizer.customize(abd);
 		}
 
+		//注册自己传入的主配置类bean定义到容器中
 		BeanDefinitionHolder definitionHolder = new BeanDefinitionHolder(abd, beanName);
 		definitionHolder = AnnotationConfigUtils.applyScopedProxyMode(scopeMetadata, definitionHolder, this.registry);
 		BeanDefinitionReaderUtils.registerBeanDefinition(definitionHolder, this.registry);

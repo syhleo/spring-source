@@ -509,13 +509,13 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 				// 初始化国际化资源处理器.
 				initMessageSource();
 
-				// 创建事件多播器
+				// 创建事件多播器（初始化事件多播器）
 				initApplicationEventMulticaster();
 
-				// 这个方法同样也是留个子类实现的springboot也是从这个方法进行启动tomat的.
+				// 这个方法同样也是留个子类实现的springboot也是从这个方法进行启动tomcat的.
 				onRefresh();
 
-				//把我们的事件监听器注册到多播器上
+				//把我们的事件监听器注册到多播器上（把容器中的监听器注册到多播器上）
 				registerListeners();
 
 				//实例化我们剩余的单实例bean.
@@ -764,16 +764,19 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	protected void initApplicationEventMulticaster() {
 		//获取我们的bean工厂对象
 		ConfigurableListableBeanFactory beanFactory = getBeanFactory();
-		//判断容器中是没有有我们的applicationEventMulticaster 应用多播器组件
+		//判断容器中有没有我们的applicationEventMulticaster 应用多播器组件
 		if (beanFactory.containsLocalBean(APPLICATION_EVENT_MULTICASTER_BEAN_NAME)) {
-			//直接显示的调用我们的getBean获取出来赋值给我们的applicationContext对象
+			/**
+			 * 直接显示的调用我们的getBean获取出来赋值给我们的applicationContext对象
+			 * 创建一个applicationEventMulticaster的bean放在IOC 容器中,bean的name 为 applicationEventMulticaster
+			 */
 			this.applicationEventMulticaster =
 					beanFactory.getBean(APPLICATION_EVENT_MULTICASTER_BEAN_NAME, ApplicationEventMulticaster.class);
 			if (logger.isDebugEnabled()) {
 				logger.debug("Using ApplicationEventMulticaster [" + this.applicationEventMulticaster + "]");
 			}
 		}
-		//容器中没有的话
+		//容器中没有的话（容器中不包含一个beanName 为applicationEventMulticaster的多播器组件）
 		else {
 			//spring ioc显示的new 一个SimpleApplicationEventMulticaster对象保存在applicatoinContext对象中
 			this.applicationEventMulticaster = new SimpleApplicationEventMulticaster(beanFactory);
@@ -830,19 +833,22 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 * Doesn't affect other listeners, which can be added without being beans.
 	 */
 	protected void registerListeners() {
-		//获取容器中所有的监听器对象(成品对象)
+		//获取容器中所有的监听器对象(成品对象)   去容器中把applicationListener捞取出来注册到多播器上去（系统的）
 		for (ApplicationListener<?> listener : getApplicationListeners()) {
 			//把监听器挨个的注册到我们的多播器上去
 			getApplicationEventMulticaster().addApplicationListener(listener);
 		}
 
-		//获取bean定义中的监听器对象
+		//获取bean定义中的监听器对象  我们自己实现了ApplicationListener的组件
 		String[] listenerBeanNames = getBeanNamesForType(ApplicationListener.class, true, false);
 		//把监听器的名称注册到我们的多播器上
 		for (String listenerBeanName : listenerBeanNames) {
 			getApplicationEventMulticaster().addApplicationListenerBean(listenerBeanName);
 		}
 
+		/**
+		 * 在这里之前，我们早期想发布的事件 由于没有多播器没有发布，在这里我们总算有了自己的多播器，可以在这里发布早期堆积的事件了.
+		 */
 		//在这里获取我们的早期事件
 		Set<ApplicationEvent> earlyEventsToProcess = this.earlyApplicationEvents;
 		this.earlyApplicationEvents = null;

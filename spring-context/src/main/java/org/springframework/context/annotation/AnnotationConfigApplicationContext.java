@@ -78,7 +78,7 @@ public class AnnotationConfigApplicationContext extends GenericApplicationContex
 		this.reader = new AnnotatedBeanDefinitionReader(this);
 
 		/**
-		 * 初始化我们的classPath类型的bean定义扫描器
+		 * 初始化我们的classPath类型的bean定义扫描器   创建类路径下的bean定义扫描器
 		 * 创建BeanDefinition扫描器
 		 * 可以用来扫描包或者类，继而转换为bd
 		 * ClassPathBeanDefinitionScanner就是用来扫描我们classpath下的标注了@Service @Compent @Respository @Controller注解
@@ -187,7 +187,10 @@ public class AnnotationConfigApplicationContext extends GenericApplicationContex
 	 */
 	public void register(Class<?>... annotatedClasses) {
 		Assert.notEmpty(annotatedClasses, "At least one annotated class must be specified");
-		//this.reader就是默认构造函数初始化的AnnotatedBeanDefinitionReader
+		/*
+		  使用构造函数初始化的AnnotatedBeanDefinitionReader注册配置类
+		  this.reader就是默认构造函数初始化的AnnotatedBeanDefinitionReader
+		 */
 		this.reader.register(annotatedClasses);
 	}
 

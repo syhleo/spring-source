@@ -156,7 +156,7 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
 		 */
 		if (useDefaultFilters) {
 			/**
-			 * 注册spring扫描类过滤器
+			 * 注册spring扫描类过滤器   注册包扫描默认的规则
 			 * 加了特定注解的类会被扫描到
 			 * 带有@Component @Repository @Service @Controller @ManagedBean @Named
 			 */
