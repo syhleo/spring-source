@@ -16,29 +16,19 @@
 
 package org.springframework.context.support;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.beans.factory.support.BeanDefinitionRegistry;
-import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
-import org.springframework.beans.factory.support.DefaultListableBeanFactory;
-import org.springframework.beans.factory.support.MergedBeanDefinitionPostProcessor;
-import org.springframework.beans.factory.support.RootBeanDefinition;
+import org.springframework.beans.factory.support.*;
 import org.springframework.core.OrderComparator;
 import org.springframework.core.Ordered;
 import org.springframework.core.PriorityOrdered;
 import org.springframework.lang.Nullable;
+
+import java.util.*;
 
 /**
  *
@@ -77,7 +67,7 @@ final class PostProcessorRegistrationDelegate {
 			//保存BeanDefinitionRegistryPostProcessor类型的后置处理器
 			List<BeanDefinitionRegistryPostProcessor> registryProcessors = new ArrayList<>();
 
-			//循环我们传递进来的beanFactoryPostProcessors
+			//循环我们传递进来的beanFactoryPostProcessors   处理容器硬编码(new 出来的)带入的beanFacotryPostProcessors
 			for (BeanFactoryPostProcessor postProcessor : beanFactoryPostProcessors) {
 				//判断我们的后置处理器是不是BeanDefinitionRegistryPostProcessor
 				if (postProcessor instanceof BeanDefinitionRegistryPostProcessor) {
@@ -120,7 +110,7 @@ final class PostProcessorRegistrationDelegate {
 			 * 用于进行bean定义的加载 比如我们的包扫描，@import  等等。。。。。。。。。
 			 */
 			invokeBeanDefinitionRegistryPostProcessors(currentRegistryProcessors, registry);
-			//调用完之后，马上clea掉
+			//调用完之后，马上clear掉
 			currentRegistryProcessors.clear();
 
 			//去容器中获取BeanDefinitionRegistryPostProcessor的bean的处理器名称
