@@ -312,6 +312,12 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 		Set<ConfigurationClass> alreadyParsed = new HashSet<>(configCandidates.size());
 		//do while 会进行第一次解析
 		do {
+			/*
+			  注意：此处parser.parse(candidates);
+			  只把@ComponentScan包扫描的bean定义信息加入到容器中，@import,@Bean等的会先保存起来由后
+			  面的this.reader.loadBeanDefinitions(configClasses);真正的把@import,@Bean扫描的bean定义信息加入到容器中
+			 */
+
 			//真正的解析我们的配置类
 			parser.parse(candidates);
 			parser.validate();
