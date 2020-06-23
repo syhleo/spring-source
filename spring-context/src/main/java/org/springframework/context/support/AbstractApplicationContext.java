@@ -512,7 +512,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 				// 创建事件多播器（初始化事件多播器）
 				initApplicationEventMulticaster();
 
-				// 这个方法同样也是留个子类实现的springboot也是从这个方法进行启动tomcat的.
+				// 这个方法同样也是留给子类实现的springboot也是从这个方法进行启动tomcat的.
 				onRefresh();
 
 				//把我们的事件监听器注册到多播器上（把容器中的监听器注册到多播器上）

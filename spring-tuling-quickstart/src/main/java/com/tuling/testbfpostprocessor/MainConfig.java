@@ -1,5 +1,7 @@
 package com.tuling.testbfpostprocessor;
 
+import com.tuling.testconfiuration.compent.Person;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
@@ -9,5 +11,10 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @ComponentScan(basePackages = "com.tuling.testbfpostprocessor")
 public class MainConfig {
+
+	@Bean
+	public com.tuling.testconfiuration.compent.Person person(){
+		return new Person();
+	}
 
 }
