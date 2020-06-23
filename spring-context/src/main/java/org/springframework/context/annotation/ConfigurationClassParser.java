@@ -276,7 +276,7 @@ class ConfigurationClassParser {
 
 		//解析我们的 @ComponentScan 注解
 
-		//从我们的配置类上解析处ComponentScans的对象集合属性
+		//从我们的配置类上解析出ComponentScans的对象集合属性  把注解解析为对象
 		Set<AnnotationAttributes> componentScans = AnnotationConfigUtils.attributesForRepeatable(
 				sourceClass.getMetadata(), ComponentScans.class, ComponentScan.class);
 		if (!componentScans.isEmpty() &&
