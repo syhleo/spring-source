@@ -93,7 +93,7 @@ final class PostProcessorRegistrationDelegate {
 					beanFactory.getBeanNamesForType(BeanDefinitionRegistryPostProcessor.class, true, false);
 			//循环上一步获取的BeanDefinitionRegistryPostProcessor的类型名称
 			for (String ppName : postProcessorNames) {
-				//判断是否实现了PriorityOrdered接口的
+				// TODO  判断是否实现了PriorityOrdered接口的
 				if (beanFactory.isTypeMatch(ppName, PriorityOrdered.class)) {
 					//显示的调用getBean()的方式获取出该对象然后加入到currentRegistryProcessors集合中去
 					currentRegistryProcessors.add(beanFactory.getBean(ppName, BeanDefinitionRegistryPostProcessor.class));
@@ -107,7 +107,7 @@ final class PostProcessorRegistrationDelegate {
 			registryProcessors.addAll(currentRegistryProcessors);
 			/**
 			 * 在这里典型的BeanDefinitionRegistryPostProcessor就是ConfigurationClassPostProcessor
-			 * 用于进行bean定义的加载 比如我们的包扫描，@import  等等。。。。。。。。。
+			 * 用于进行bean定义的加载 比如我们的包扫描@ComponentScan，@import  等等。。。。。。。。。
 			 */
 			invokeBeanDefinitionRegistryPostProcessors(currentRegistryProcessors, registry);
 			//调用完之后，马上clear掉
@@ -117,7 +117,7 @@ final class PostProcessorRegistrationDelegate {
 			postProcessorNames = beanFactory.getBeanNamesForType(BeanDefinitionRegistryPostProcessor.class, true, false);
 			//循环上一步获取的BeanDefinitionRegistryPostProcessor的类型名称
 			for (String ppName : postProcessorNames) {
-				//表示没有被处理过,且实现了Ordered接口的
+				// TODO  表示没有被处理过,且实现了Ordered接口的
 				if (!processedBeans.contains(ppName) && beanFactory.isTypeMatch(ppName, Ordered.class)) {
 					//显示的调用getBean()的方式获取出该对象然后加入到currentRegistryProcessors集合中去
 					currentRegistryProcessors.add(beanFactory.getBean(ppName, BeanDefinitionRegistryPostProcessor.class));
@@ -145,7 +145,7 @@ final class PostProcessorRegistrationDelegate {
 				postProcessorNames = beanFactory.getBeanNamesForType(BeanDefinitionRegistryPostProcessor.class, true, false);
 				//循环上一步获取的BeanDefinitionRegistryPostProcessor的类型名称
 				for (String ppName : postProcessorNames) {
-					//没有被处理过的
+					// TODO  没有被处理过的
 					if (!processedBeans.contains(ppName)) {
 						//显示的调用getBean()的方式获取出该对象然后加入到currentRegistryProcessors集合中去
 						currentRegistryProcessors.add(beanFactory.getBean(ppName, BeanDefinitionRegistryPostProcessor.class));
