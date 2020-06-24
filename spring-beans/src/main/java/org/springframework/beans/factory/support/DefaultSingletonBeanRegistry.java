@@ -270,7 +270,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 				}
 				try {
 					//<3> 初始化 bean
-					// 这个过程其实是调用 createBean() 方法
+					// 这个过程其实是调用 createBean() 方法  在外面回调可以看到sharedInstance = getSingleton(beanName, () -> { xxx
 					singletonObject = singletonFactory.getObject();
 					newSingleton = true;
 				}
