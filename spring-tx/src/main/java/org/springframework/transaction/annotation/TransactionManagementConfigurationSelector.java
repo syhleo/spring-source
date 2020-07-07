@@ -42,7 +42,7 @@ public class TransactionManagementConfigurationSelector extends AdviceModeImport
 	 */
 	@Override
 	protected String[] selectImports(AdviceMode adviceMode) {
-		switch (adviceMode) {
+		switch (adviceMode) { //因为我们配置的默认模式是PROXY
 			/**
 			 * 为我们的容器中导入了二个组件 一个是AutoProxyRegistrar
 			 * 一个是ProxyTransactionManagementConfiguration

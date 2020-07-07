@@ -4,8 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class B {
+public class Btest {
 
 	@Autowired
-	private A a;
+	private Atest atest;
 }

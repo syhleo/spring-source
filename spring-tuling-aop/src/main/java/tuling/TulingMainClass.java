@@ -14,6 +14,6 @@ public class TulingMainClass {
         Calculate calculate = (Calculate) ctx.getBean("calculate");
 
         //int retVal = calculate.mod(2,4);
-		calculate.div(6,2);
+		calculate.add(6,2);
     }
 }

@@ -16,17 +16,18 @@
 
 package org.springframework.context.annotation;
 
-import java.util.Set;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.aop.config.AopConfigUtils;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.type.AnnotationMetadata;
 
+import java.util.Set;
+
 /**
+ * AutoProxyRegistrar为我们容器注册了一个InfrastructureAdvisorAutoProxyCreator组件
+ *
  * Registers an auto proxy creator against the current {@link BeanDefinitionRegistry}
  * as appropriate based on an {@code @Enable*} annotation having {@code mode} and
  * {@code proxyTargetClass} attributes set to the correct values.
@@ -57,14 +58,20 @@ public class AutoProxyRegistrar implements ImportBeanDefinitionRegistrar {
 	@Override
 	public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
 		boolean candidateFound = false;
+		//从我们传入进去的配置类上获取所有的注解的
 		Set<String> annTypes = importingClassMetadata.getAnnotationTypes();
+		//循环我们上一步获取的注解
 		for (String annType : annTypes) {
+			//获取注解的元信息
 			AnnotationAttributes candidate = AnnotationConfigUtils.attributesFor(importingClassMetadata, annType);
 			if (candidate == null) {
 				continue;
 			}
+			//获取注解的mode属性
 			Object mode = candidate.get("mode");
+			//获取注解的proxyTargetClass
 			Object proxyTargetClass = candidate.get("proxyTargetClass");
+			//根据mode和proxyTargetClass的判断来注册不同的组件
 			if (mode != null && proxyTargetClass != null && AdviceMode.class == mode.getClass() &&
 					Boolean.class == proxyTargetClass.getClass()) {
 				candidateFound = true;
