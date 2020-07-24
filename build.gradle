@@ -105,9 +105,9 @@ configure(allprojects) { project ->
 //			["-Xlint:varargs", "-Xlint:fallthrough", "-Xlint:rawtypes",
 //			 "-Xlint:deprecation", "-Xlint:unchecked", "-Werror"]
 
-	compileTestJava.options*.compilerArgs = commonCompilerArgs +
-			["-Xlint:-varargs", "-Xlint:-fallthrough", "-Xlint:-rawtypes",
-			 "-Xlint:-deprecation", "-Xlint:-unchecked"]
+//	compileTestJava.options*.compilerArgs = commonCompilerArgs +
+//			["-Xlint:-varargs", "-Xlint:-fallthrough", "-Xlint:-rawtypes",
+//			 "-Xlint:-deprecation", "-Xlint:-unchecked"]
 
 	compileJava {
 		sourceCompatibility = 1.8  // can be switched to 10 for testing
